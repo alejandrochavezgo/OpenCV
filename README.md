@@ -8,4 +8,5 @@ Examples of programs using OpenCV in C++.<br>
   <li>Face detection.</li>
   <li>Tracking face detection.</li>
   <li>Tracking object by color.</li>
+  <li>Drawing with the Webcam</li>
 </ul>
