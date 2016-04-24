@@ -1,8 +1,8 @@
 # OpenCV Examples
 Examples of programs using OpenCV in C++.<br>
 <ul>
-  <li><a href="#">Load an image.</a></li>
-  <li><a href="#">Load a video.</a></li>
+  <li>Load an image.</li>
+  <li>Load a video.</li>
   <li><a href="#">Image filters.</a></li>
   <li><a href="#">Edges detection.</a></li>
   <li><a href="#">Face detection.</a></li>
