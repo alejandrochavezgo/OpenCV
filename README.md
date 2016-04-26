@@ -1,5 +1,5 @@
 # OpenCV Examples
-Examples of programs using OpenCV in C++.<br>
+Examples of programs using OpenCV 3 in C++.<br>
 <ul>
   <li>Load an image.</li>
   <li>Load a video.</li>
