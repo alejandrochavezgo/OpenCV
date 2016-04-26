@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 	}
 
 	//Load the image to be processed, if not load, terminate program.
-	cv::Mat imgOriginal = cv::imread("astronauts.JPG");
+	cv::Mat imgOriginal = cv::imread("astronauts_class_of_1998.JPG");
 	if (imgOriginal.empty())
 	{
 		std::cout << "[+] Error: Unable to load the image." << std::endl;
