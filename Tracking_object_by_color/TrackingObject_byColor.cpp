@@ -53,7 +53,7 @@ int  main(int argc, char** argv)
 		//Aplicar filtro para color deseado
 		cv::inRange(hsv, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), binary);
 
-		//Aplicar tranformaciones morfologicas (se extrae la regi�n de interes)
+		//Aplicar tranformaciones morfologicas (se extrae la región de interes)
 		cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(15, 15));
 		cv::erode(binary, binary, element);
 		cv::dilate(binary, binary, element);

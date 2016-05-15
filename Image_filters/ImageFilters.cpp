@@ -13,9 +13,10 @@ int main(int argc, char ** argv)
 	//If unable to open image, show error message and exit program.
 	if (imgInput.empty())							  
 	{
-		std::cout << "Error: image not read from file\n\n";
-		system("PAUSE");
-		return (-1);
+		std::cerr << "[-] Error: Unable to load image.\n" << std::endl;
+		std::cerr << "Press ENTER to exit..." << std::endl;
+		std::cin.ignore();
+		return EXIT_FAILURE;
 	}
 	
 	//New window.
@@ -38,8 +39,8 @@ int main(int argc, char ** argv)
 	cv::resizeWindow("MedianBlur", 250, 200);
 	cv::moveWindow("MedianBlur", 270, 0);
 	
-	 //Algorithm MedianBlur accept the image original, matrix where the new image will be stored and 
-	 //kernel size (positive and odd).
+	//Algorithm MedianBlur accept the image original, matrix where the new image will be stored and 
+	//kernel size (positive and odd).
 	cv::medianBlur(imgInput, imgOutput, 5);					 
 						  
 	cv::imshow("MedianBlur", imgOutput);
@@ -102,6 +103,7 @@ int main(int argc, char ** argv)
 	cv::imshow("Original", imgInput);
 
 	//Wait until any key is pressed.
+	std::cerr << "Press any key to exit..." << std::endl;
 	cv::waitKey(0);
 
 	//Freeing up memory.
@@ -110,5 +112,5 @@ int main(int argc, char ** argv)
 	imgInput.release();							  
 	imgOutput.release();							  
 
-	return 0;
+	return EXIT_SUCCESS;
 }

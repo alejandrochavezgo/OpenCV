@@ -12,18 +12,20 @@ int main(int argc, char** argv)
 	cv::CascadeClassifier haarcascade_frontalface;
 	if (!haarcascade_frontalface.load("C:\\OpenCV-3.1.0\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_alt.xml"))
 	{
-		std::cout << "[+] Error: Unable to load cascade classifier file." << std::endl;
-		system("PAUSE");
-		return false;
+		std::cerr << "[-] Error: Unable to load the cascade classifier file.\n" << std::endl;
+		std::cerr << "Press ENTER to exit..." << std::endl;
+		std::cin.ignore();
+		return EXIT_FAILURE;
 	}
 
 	//Load the image to be processed, if not load, terminate program.
 	cv::Mat imgOriginal = cv::imread("astronauts_class_of_1998.JPG");
 	if (imgOriginal.empty())
 	{
-		std::cout << "[+] Error: Unable to load the image." << std::endl;
-		system("PAUSE");
-		return -1;
+		std::cerr << "[-] Error: Unable to load the image." << std::endl;
+		std::cerr << "Press ENTER to exit..." << std::endl;
+		std::cin.ignore();
+		return EXIT_FAILURE;
 	}
 
 	cv::namedWindow("Input", CV_WINDOW_AUTOSIZE);
@@ -49,7 +51,7 @@ int main(int argc, char** argv)
 	{
 		//Create a new object Rectangle for the face found.
 		cv::Rect r = faces[i];
-		
+
 		/*
 		int radius = r.width / 2;
 		int x = r.x + (r.width / 2);
@@ -66,6 +68,7 @@ int main(int argc, char** argv)
 
 	//Display the original frame.
 	cv::imshow("Output", imgOriginal);
+	std::cout << "Press any key to exit..." << std::endl;
 	cv::waitKey(0);
 
 	//Freed memory space.
@@ -74,5 +77,5 @@ int main(int argc, char** argv)
 	imgGrayscale.release();
 	cv::destroyAllWindows();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
