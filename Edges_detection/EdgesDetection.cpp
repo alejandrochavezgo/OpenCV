@@ -16,10 +16,10 @@ int main(int argc, char** argv)
 	//Image with only the edges.						
 	cv::Mat imgCanny;
 
-	//Initialize the webcam.
+	//Open any webcam.
 	cv::VideoCapture vc(CV_CAP_ANY);
 
-	//If the webcam unable to open, ends the program.
+	//If the webcam does not open, terminate program.
 	if (!vc.isOpened())
 	{
 		std::cerr << "[-] Error: Unable to open the webcam.\n" << std::endl;
@@ -45,6 +45,14 @@ int main(int argc, char** argv)
 
 		//A frame is obtained and stored in imgOriginal.			
 		vc >> imgOriginal;
+
+		if (imgOriginal.empty()) 
+		{
+			cerr << "[-] Error: Unable to read the next frame.\n" << endl;
+			cerr << "Press ENTER to exit." << endl;
+			cin.ignore();
+			break;
+		}
 
 		//The frame is displayed.								
 		cv::imshow("Input", imgOriginal);

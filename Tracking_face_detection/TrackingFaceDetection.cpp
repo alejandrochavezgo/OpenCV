@@ -1,8 +1,8 @@
 //Libraries.
 #include <opencv2\core\core.hpp>
+#include <opencv2\highgui\highgui.hpp>
 #include <opencv2\imgproc\imgproc.hpp>
 #include <opencv2\objdetect\objdetect.hpp>
-#include <opencv2\highgui\highgui.hpp>
 #include <iostream>
 
 //Main function.
@@ -45,7 +45,15 @@ int main(int argc, char** argv)
 		cv::Mat frmOriginal;
 		webcam >> frmOriginal;
 
-		//Convert frame to grayscale.
+		if (frm_original.empty()) 
+		{
+			cerr << "[-] Error: Unable to read the next frame.\n" << endl;
+			cerr << "Press ENTER to exit." << endl;
+			cin.ignore();
+			break;
+		}
+
+		//Convert frame from RGB to grayscale.
 		cv::Mat frmGrayscale;
 		cv::cvtColor(frmOriginal, frmGrayscale, CV_BGR2GRAY);
 

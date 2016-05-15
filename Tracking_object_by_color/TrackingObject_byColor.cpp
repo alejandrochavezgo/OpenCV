@@ -1,95 +1,133 @@
+//Libraries.
 #include <opencv2\opencv.hpp>
-#include <opencv2\imgproc\imgproc.hpp>
 #include <opencv2\core\core.hpp>
+#include <opencv2\imgproc\imgproc.hpp>
 #include <opencv2\highgui\highgui.hpp>
 #include <iostream>
+#include <Windows.h>
 
-int  main(int argc, char** argv) 
+//Namespaces used.
+using namespace cv;
+using namespace std;
+
+//Main function.
+int  main(int argc, char** argv)
 {
-	cv::VideoCapture vc(CV_CAP_ANY);
-	
-	if (!vc.isOpened())
-		return -1;
+	//Open any webcam.
+	VideoCapture webcam(CV_CAP_ANY);
 
-	cv::namedWindow("Input", CV_WINDOW_NORMAL);
-	cv::namedWindow("Output", CV_WINDOW_NORMAL);
-	cv::namedWindow("Binary", CV_WINDOW_NORMAL);
-	cv::namedWindow("Adjust", CV_WINDOW_NORMAL);
-
-	cv::resizeWindow("Input", 200, 150);
-	cv::resizeWindow("Binary", 200, 150);
-	cv::resizeWindow("Output", 550, 400);
-	cv::resizeWindow("Adjust", 500, 200);
-
-	int iLowH = 0;
-	int iHighH = 79;
-
-	int iLowS = 0;
-	int iHighS = 255;
-
-	int iLowV = 0;
-	int iHighV = 255;
-
-	cvCreateTrackbar("Low - Hue", "Adjust", &iLowH, 255);				//Hue (0 - 79)
-	cvCreateTrackbar("High - Hue", "Adjust", &iHighH, 255);
-
-	cvCreateTrackbar("Low - Saturation", "Adjust", &iLowS, 255);		//Saturation (0 - 255)
-	cvCreateTrackbar("High - Saturation", "Adjust", &iHighS, 255);
-
-	cvCreateTrackbar("Low - Value", "Adjust", &iLowV, 255);				//Value (0 - 255)
-	cvCreateTrackbar("High - Value", "Adjust", &iHighV, 255);
-
-	while (1) 
-	{	
-		cv::Mat frmOriginal;
-		vc >> frmOriginal;
-
-		cv::imshow("Input", frmOriginal);
-
-		cv::Mat hsv, binary;
-		//Convertir imagen RGB a HSV 
-		cv::cvtColor(frmOriginal, hsv, CV_BGR2HSV);
-
-		//Aplicar filtro para color deseado
-		cv::inRange(hsv, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), binary);
-
-		//Aplicar tranformaciones morfologicas (se extrae la región de interes)
-		cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(15, 15));
-		cv::erode(binary, binary, element);
-		cv::dilate(binary, binary, element);
-
-		cv::imshow("Binary", binary);
-
-		//Buscar contornos en la imagen binaria
-		std::vector< std::vector<cv::Point> > contours;
-		findContours(binary, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-
-		//Dibujar todos los contornos encontrados
-		drawContours(binary, contours, -1, cv::Scalar(255), CV_FILLED);
-
-		//Dibujar rectangulo y texto con coordenadas (x, y)
-		for (std::vector<cv::Point> contour : contours) 
-		{
-			cv::Rect r = boundingRect(contour);
-			cv::rectangle(frmOriginal, r.tl(), r.br(), CV_RGB(255, 0, 0), 2, CV_AA, 0);
-
-			cv::Point center(r.x + (r.width / 2), r.y + (r.height / 2));
-
-			std::ostringstream points;
-			points << center.x << "," << center.y;
-
-			std::cout << "Point: " << points.str() << std::endl;
-			putText(frmOriginal, points.str(), center, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.60, CV_RGB(0, 255, 0), 1, CV_AA);
-		}
-
-		cv::imshow("Output", frmOriginal);
-
-		if (cv::waitKey(10) == 27)
-			break;
+	//If the webcam does not open, terminate program.
+	if (!webcam.isOpened())
+	{
+		cerr << "[-] Error: Unable to open the webcam.\n" << endl;
+		cerr << "Press ENTER to exit." << endl;
+		cin.ignore();
+		return EXIT_FAILURE;
 	}
 
-	vc.release();
-	cv::destroyAllWindows();
+	//Set position of the console.
+	HWND console = GetConsoleWindow();
+	SetWindowPos(console, 0, 0, 470, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
-	return 0;
+	//Create windows.
+	namedWindow("Input", CV_WINDOW_NORMAL);
+	namedWindow("Output", CV_WINDOW_NORMAL);
+	namedWindow("Binary", CV_WINDOW_NORMAL);
+	namedWindow("Adjust", CV_WINDOW_NORMAL);
+
+	//Set position of the windows.
+	moveWindow("Input", 800, 25);
+	moveWindow("Output", 0, 25);
+	moveWindow("Binary", 1100, 25);
+	moveWindow("Adjust", 800, 250);
+
+	//Resize windows.
+	resizeWindow("Input", 200, 150);
+	resizeWindow("Binary", 200, 150);
+	resizeWindow("Adjust", 500, 500);
+
+	int minH = 0;
+	int maxH = 255;
+
+	int minS = 0;
+	int maxS = 255;
+
+	int minV = 0;
+	int maxV = 255;
+
+	//Create trackbars to modify variables and find the desired color.
+	cvCreateTrackbar("Min-H", "Adjust", &minH, 255);				
+	cvCreateTrackbar("Max-H", "Adjust", &maxH, 255);
+
+	cvCreateTrackbar("Min-S", "Adjust", &minS, 255);		
+	cvCreateTrackbar("Max-S", "Adjust", &maxS, 255);
+
+	cvCreateTrackbar("Min-V", "Adjust", &minV, 255);			
+	cvCreateTrackbar("Max-V", "Adjust", &maxV, 255);
+
+	char checkKeyPressed = 0;
+
+	cout << "Press ESC to exit..." << endl;
+
+	while (checkKeyPressed != 27 && webcam.isOpened())
+	{
+		//Get a frame of the webcam.
+		Mat frm_original;
+		webcam >> frm_original;
+
+		if (frm_original.empty()) 
+		{
+			cerr << "[-] Error: Unable to read the next frame.\n" << endl;
+			cerr << "Press ENTER to exit." << endl;
+			cin.ignore();
+			break;
+		}
+
+		imshow("Input", frm_original);
+
+		//Convert frame from RGB to HSV.
+		Mat frm_hsv, frm_binary;
+		cvtColor(frm_original, frm_hsv, CV_BGR2HSV);
+
+		//Apply desired color filter.
+		inRange(frm_hsv, Scalar(minH, minS, minV), Scalar(maxH, maxS, maxV), frm_binary);
+
+		//Apply Morphological transformations. (extracted region of interest)
+		Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));
+		erode(frm_binary, frm_binary, element);
+		dilate(frm_binary, frm_binary, element);
+
+		imshow("Binary", frm_binary);
+
+		//Search contours in the binary image.
+		vector< vector<Point> > contours;
+		findContours(frm_binary, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+		//Draw all the contours found in the binary image.
+		//drawContours(frm_binary, contours, -1, Scalar(255), CV_FILLED);
+
+		//Draw rectangle and text in coordinates (x, y)
+		for (vector<Point> contour : contours)
+		{
+			Rect r = boundingRect(contour);
+			rectangle(frm_original, r.tl(), r.br(), Scalar(0, 255, 0), 1, CV_AA, 0);
+
+			Point pt_center(r.x + (r.width / 2), r.y + (r.height / 2));
+
+			ostringstream coordinates;
+			coordinates << pt_center.x << "," << pt_center.y;
+
+			//cout << "Point: " << pt_center.str() << endl;
+			putText(frm_original, coordinates.str(), pt_center, FONT_HERSHEY_COMPLEX_SMALL, 0.50, CV_RGB(0, 255, 0), 1, CV_AA);
+		}
+
+		imshow("Output", frm_original);
+
+		checkKeyPressed = waitKey(1);
+	}
+
+	webcam.release();
+	destroyAllWindows();
+
+	return EXIT_SUCCESS;
 }
