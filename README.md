@@ -9,5 +9,4 @@ Examples of programs using OpenCV 3 in C++.<br>
   <li><a href="https://github.com/0Skywalker/OpenCV-Examples/tree/master/Tracking_face_detection">Tracking face detection.</a></li>
   <li><a href="https://github.com/0Skywalker/OpenCV-Examples/tree/master/Tracking_object_by_color">Tracking object by color.</a></li>
   <li>Drawing with the Webcam. (by color detected)</li>
-  <li>Drawing with the Webcam. (by object detected)</li>
 </ul>
